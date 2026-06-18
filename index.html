@@ -411,9 +411,23 @@
           return;
         }
 
+        const conversationId = crypto.randomUUID();
+        const promptMessageId = crypto.randomUUID();
+
         button.disabled = true;
         button.textContent = 'Explaining...';
         showLoading();
+
+        if (window.pendo && window.pendo.trackAgent) {
+          window.pendo.trackAgent("prompt", {
+            agentId: "lYLYjVgoUTfn3l7nMa0HE65t2hE",
+            conversationId: conversationId,
+            messageId: promptMessageId,
+            content: text,
+            suggestedPrompt: false,
+            fileUploaded: false
+          });
+        }
 
         try {
           const response = await fetch('/api/explain', {
@@ -432,6 +446,17 @@
           const jsonStr = extractJSON(rawText);
           if (!jsonStr) throw new Error('No structured response was found in the reply.');
           const parsed = JSON.parse(jsonStr);
+
+          if (window.pendo && window.pendo.trackAgent) {
+            window.pendo.trackAgent("agent_response", {
+              agentId: "lYLYjVgoUTfn3l7nMa0HE65t2hE",
+              conversationId: conversationId,
+              messageId: crypto.randomUUID(),
+              content: rawText,
+              modelUsed: "claude-sonnet-4-5"
+            });
+          }
+
           showResult(parsed);
         } catch (error) {
           showError('We could not process your offer right now. Please check your text and try again.');
