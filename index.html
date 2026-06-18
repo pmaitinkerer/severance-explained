@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Severance, explained</title>
+    <style>
+      :root {
+        color-scheme: light;
+        color: #2d2b26;
+        background: #f5f1ec;
+        font-family: Georgia, Cambria, "Times New Roman", Times, serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 32px;
+      }
+
+      .page {
+        width: 100%;
+        max-width: 900px;
+        background: #fffdf8;
+        border: 1px solid #ded5c9;
+        border-radius: 24px;
+        padding: 36px;
+        box-shadow: 0 20px 60px rgba(45, 43, 38, 0.12);
+      }
+
+      header {
+        margin-bottom: 32px;
+      }
+
+      .title {
+        margin: 0;
+        font-size: clamp(2.25rem, 4vw, 3.5rem);
+        line-height: 1.02;
+        letter-spacing: -0.03em;
+      }
+
+      .tagline {
+        margin: 14px 0 0;
+        max-width: 680px;
+        font-size: 1.05rem;
+        color: #5a534a;
+        line-height: 1.6;
+      }
+
+      .form-card {
+        display: grid;
+        gap: 18px;
+        margin-bottom: 28px;
+      }
+
+      label {
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+        font-size: 0.95rem;
+        color: #4b463f;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 260px;
+        border-radius: 16px;
+        border: 1px solid #d7cfc4;
+        padding: 18px;
+        font-size: 1rem;
+        line-height: 1.75;
+        font-family: Georgia, serif;
+        resize: vertical;
+        background: #fcf8f2;
+        color: #27231d;
+      }
+
+      button {
+        width: fit-content;
+        border: none;
+        border-radius: 999px;
+        padding: 14px 26px;
+        background: #8e7862;
+        color: #f8f3ec;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.18s ease, background 0.18s ease;
+      }
+
+      button:hover,
+      button:focus-visible {
+        background: #7a6958;
+        transform: translateY(-1px);
+        outline: none;
+      }
+
+      button:disabled {
+        background: #c1b6aa;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .result-panel {
+        margin-top: 20px;
+        padding: 24px;
+        background: #f7f2eb;
+        border: 1px solid #e4d8c9;
+        border-radius: 20px;
+      }
+
+      .disclaimer {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        width: fit-content;
+        margin-bottom: 24px;
+        padding: 14px 18px;
+        border-radius: 14px;
+        background: #fff3d9;
+        color: #6f5b45;
+        font-size: 0.97rem;
+        line-height: 1.5;
+        border: 1px solid #e7d5bd;
+      }
+
+      .section {
+        margin-bottom: 24px;
+      }
+
+      .section:last-child {
+        margin-bottom: 0;
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+        margin-bottom: 10px;
+        color: #3f362d;
+      }
+
+      .section-content {
+        margin: 0;
+        white-space: pre-wrap;
+        color: #4f473f;
+        line-height: 1.8;
+      }
+
+      .escalation-banner {
+        margin-bottom: 24px;
+        padding: 20px 22px;
+        border-radius: 16px;
+        background: #fff8e6;
+        border: 1.5px solid #e8c86a;
+        color: #5a4217;
+      }
+
+      .escalation-banner h2 {
+        margin: 0 0 10px;
+        font-size: 1.1rem;
+        color: #4a3510;
+      }
+
+      .escalation-banner p {
+        margin: 0 0 10px;
+        line-height: 1.7;
+        font-size: 0.97rem;
+      }
+
+      .escalation-banner p:last-child {
+        margin-bottom: 0;
+      }
+
+      .escalation-cta {
+        font-weight: 600;
+      }
+
+      .result-list {
+        margin: 0;
+        padding-left: 1.4em;
+        color: #4f473f;
+        line-height: 1.8;
+      }
+
+      .result-list li {
+        margin-bottom: 8px;
+      }
+
+      .result-list li:last-child {
+        margin-bottom: 0;
+      }
+
+      .loading {
+        padding: 28px 24px;
+        text-align: center;
+        color: #7a6958;
+        font-size: 1rem;
+        font-style: italic;
+      }
+
+      .error {
+        padding: 18px 20px;
+        border-radius: 16px;
+        background: #f6e2dc;
+        color: #7c3c2e;
+        border: 1px solid #e4bbb1;
+      }
+
+      @media (max-width: 700px) {
+        body {
+          padding: 18px;
+        }
+
+        .page {
+          padding: 24px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header>
+        <h1 class="title">Severance, explained</h1>
+        <p class="tagline">Paste your severance offer and get a clear, calm breakdown of what it means and what to watch for.</p>
+      </header>
+
+      <form id="explain-form" class="form-card">
+        <label for="offer-text">
+          Paste your severance offer text here
+          <textarea id="offer-text" name="offerText" placeholder="Copy the severance offer details from your email or document." required></textarea>
+        </label>
+        <button id="explain-button" type="submit">Explain this</button>
+      </form>
+
+      <div id="result-container"></div>
+    </main>
+
+    <script>
+      const form = document.getElementById('explain-form');
+      const textarea = document.getElementById('offer-text');
+      const button = document.getElementById('explain-button');
+      const resultContainer = document.getElementById('result-container');
+
+      function extractJSON(text) {
+        const first = text.indexOf('{');
+        const last = text.lastIndexOf('}');
+        if (first === -1 || last === -1 || last <= first) return null;
+        return text.slice(first, last + 1);
+      }
+
+      function createParaSection(title, text) {
+        const section = document.createElement('section');
+        section.className = 'section';
+
+        const heading = document.createElement('h2');
+        heading.className = 'section-title';
+        heading.textContent = title;
+
+        const p = document.createElement('p');
+        p.className = 'section-content';
+        p.textContent = text || 'No information was returned.';
+
+        section.appendChild(heading);
+        section.appendChild(p);
+        return section;
+      }
+
+      function createListSection(title, items) {
+        const section = document.createElement('section');
+        section.className = 'section';
+
+        const heading = document.createElement('h2');
+        heading.className = 'section-title';
+        heading.textContent = title;
+        section.appendChild(heading);
+
+        if (!Array.isArray(items) || items.length === 0) {
+          const p = document.createElement('p');
+          p.className = 'section-content';
+          p.textContent = 'None identified.';
+          section.appendChild(p);
+        } else {
+          const ul = document.createElement('ul');
+          ul.className = 'result-list';
+          items.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            ul.appendChild(li);
+          });
+          section.appendChild(ul);
+        }
+        return section;
+      }
+
+      function showLoading() {
+        resultContainer.innerHTML = '';
+        const loading = document.createElement('div');
+        loading.className = 'loading';
+        loading.textContent = 'Reading your offer...';
+        resultContainer.appendChild(loading);
+      }
+
+      function showResult(parsed) {
+        resultContainer.innerHTML = '';
+
+        const panel = document.createElement('div');
+        panel.className = 'result-panel';
+
+        const disclaimer = document.createElement('div');
+        disclaimer.className = 'disclaimer';
+        disclaimer.textContent = 'This is plain-language information, not legal advice.';
+        panel.appendChild(disclaimer);
+
+        if (parsed.escalate) {
+          const banner = document.createElement('div');
+          banner.className = 'escalation-banner';
+
+          const bannerHeading = document.createElement('h2');
+          bannerHeading.textContent = 'Worth a professional eye';
+          banner.appendChild(bannerHeading);
+
+          if (parsed.escalate_reason) {
+            const reason = document.createElement('p');
+            reason.textContent = parsed.escalate_reason;
+            banner.appendChild(reason);
+          }
+
+          const cta = document.createElement('p');
+          cta.className = 'escalation-cta';
+          cta.textContent = 'Consider having an employment attorney review this before you sign.';
+          banner.appendChild(cta);
+
+          panel.appendChild(banner);
+        }
+
+        panel.appendChild(createParaSection("What you're being offered", parsed.offered));
+        panel.appendChild(createListSection('What looks standard', parsed.standard));
+        panel.appendChild(createListSection('What to look at closely', parsed.look_closely));
+        panel.appendChild(createListSection('Before you sign', parsed.before_signing));
+
+        resultContainer.appendChild(panel);
+      }
+
+      function showError(message) {
+        resultContainer.innerHTML = '';
+        const errorBox = document.createElement('div');
+        errorBox.className = 'error';
+        errorBox.textContent = message;
+        resultContainer.appendChild(errorBox);
+      }
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const text = textarea.value.trim();
+        if (!text) {
+          showError('Please paste your severance offer text before submitting.');
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = 'Explaining...';
+        showLoading();
+
+        try {
+          const response = await fetch('/api/explain', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text }),
+          });
+
+          if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            throw new Error(errData.error || 'The server returned an error.');
+          }
+
+          const data = await response.json();
+          const rawText = data.content?.[0]?.text ?? '';
+          const jsonStr = extractJSON(rawText);
+          if (!jsonStr) throw new Error('No structured response was found in the reply.');
+          const parsed = JSON.parse(jsonStr);
+          showResult(parsed);
+        } catch (error) {
+          showError('We could not process your offer right now. Please check your text and try again.');
+          console.error(error);
+        } finally {
+          button.disabled = false;
+          button.textContent = 'Explain this';
+        }
+      });
+    </script>
+  </body>
+</html>
