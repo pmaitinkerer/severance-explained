@@ -430,6 +430,14 @@ pendo.initialize({
         button.textContent = 'Explaining...';
         showLoading();
 
+        if (typeof pendo !== 'undefined') {
+          pendo.track("offer_submitted", {
+            offerTextLength: text.length,
+            offerTextWordCount: text.split(/\s+/).length
+          });
+        }
+
+        let failureStage = 'api_call';
         try {
           const response = await fetch('/api/explain', {
             method: 'POST',
@@ -437,20 +445,49 @@ pendo.initialize({
             body: JSON.stringify({ text }),
           });
 
+          failureStage = 'response_validation';
           if (!response.ok) {
             const errData = await response.json().catch(() => ({}));
             throw new Error(errData.error || 'The server returned an error.');
           }
 
+          failureStage = 'response_parsing';
           const data = await response.json();
           const rawText = data.content?.[0]?.text ?? '';
           const jsonStr = extractJSON(rawText);
           if (!jsonStr) throw new Error('No structured response was found in the reply.');
           const parsed = JSON.parse(jsonStr);
           showResult(parsed);
+
+          if (typeof pendo !== 'undefined') {
+            pendo.track("offer_explanation_generated", {
+              offerTextLength: text.length,
+              escalate: !!parsed.escalate,
+              standardItemsCount: Array.isArray(parsed.standard) ? parsed.standard.length : 0,
+              lookCloselyItemsCount: Array.isArray(parsed.look_closely) ? parsed.look_closely.length : 0,
+              beforeSigningItemsCount: Array.isArray(parsed.before_signing) ? parsed.before_signing.length : 0,
+              hasEscalation: !!parsed.escalate
+            });
+
+            if (parsed.escalate) {
+              pendo.track("escalation_recommended", {
+                escalateReason: (parsed.escalate_reason || '').substring(0, 200),
+                offerTextLength: text.length,
+                lookCloselyItemsCount: Array.isArray(parsed.look_closely) ? parsed.look_closely.length : 0
+              });
+            }
+          }
         } catch (error) {
           showError('We could not process your offer right now. Please check your text and try again.');
           console.error(error);
+
+          if (typeof pendo !== 'undefined') {
+            pendo.track("offer_explanation_failed", {
+              offerTextLength: text.length,
+              errorMessage: (error.message || 'Unknown error').substring(0, 200),
+              failureStage: failureStage
+            });
+          }
         } finally {
           button.disabled = false;
           button.textContent = 'Explain this';
