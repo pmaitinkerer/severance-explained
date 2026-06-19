@@ -361,6 +361,43 @@ pendo.initialize({
         return section;
       }
 
+      function createFlagCardSection(title, items) {
+        const section = document.createElement('section');
+        section.className = 'section';
+
+        const heading = document.createElement('h2');
+        heading.className = 'section-title';
+        heading.textContent = title;
+        section.appendChild(heading);
+
+        if (!Array.isArray(items) || items.length === 0) {
+          const p = document.createElement('p');
+          p.className = 'section-content';
+          p.textContent = 'None identified.';
+          section.appendChild(p);
+        } else {
+          const cardContainer = document.createElement('div');
+          cardContainer.style.cssText = 'display: flex; flex-direction: column; gap: 10px;';
+          items.forEach(item => {
+            const card = document.createElement('div');
+            card.style.cssText = 'border-left: 3px solid #d4a94c; background: #fef8e8; padding: 14px 18px; border-radius: 0 6px 6px 0; font-size: 0.97rem; line-height: 1.7; color: #5c4a1f; display: flex; align-items: baseline; gap: 10px;';
+
+            const marker = document.createElement('span');
+            marker.style.cssText = 'flex-shrink: 0; color: #c89b3c; font-size: 0.7rem; position: relative; top: -1px;';
+            marker.textContent = '◆';
+
+            const text = document.createElement('span');
+            text.textContent = item;
+
+            card.appendChild(marker);
+            card.appendChild(text);
+            cardContainer.appendChild(card);
+          });
+          section.appendChild(cardContainer);
+        }
+        return section;
+      }
+
       function showLoading() {
         resultContainer.innerHTML = '';
         const loading = document.createElement('div');
@@ -404,7 +441,7 @@ pendo.initialize({
 
         panel.appendChild(createParaSection("What you're being offered", parsed.offered));
         panel.appendChild(createListSection('What looks standard', parsed.standard));
-        panel.appendChild(createListSection('What to look at closely', parsed.look_closely));
+        panel.appendChild(createFlagCardSection('What to look at closely', parsed.look_closely));
         panel.appendChild(createListSection('Before you sign', parsed.before_signing));
 
         resultContainer.appendChild(panel);
