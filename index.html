@@ -13,11 +13,18 @@
     z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
 })('79f5c386-cf26-47ec-b917-a9f06a6ae706');
 
-pendo.initialize({
-  visitor: {
-    id: ''
+(function() {
+  var storageKey = 'sev_visitor_id';
+  var visitorId;
+  try {
+    visitorId = localStorage.getItem(storageKey);
+  } catch (e) {}
+  if (!visitorId) {
+    visitorId = (crypto.randomUUID ? crypto.randomUUID() : 'anon-' + Math.random().toString(36).slice(2) + Date.now().toString(36));
+    try { localStorage.setItem(storageKey, visitorId); } catch (e) {}
   }
-});
+  pendo.initialize({ visitor: { id: visitorId } });
+})();
     </script>
     <style>
       :root {
@@ -437,6 +444,9 @@ pendo.initialize({
           banner.appendChild(cta);
 
           panel.appendChild(banner);
+          pendo.track('escalation_recommended', {
+            escalateReason: parsed.escalate_reason || ''
+          });
         }
 
         panel.appendChild(createParaSection("What you're being offered", parsed.offered));
@@ -463,6 +473,11 @@ pendo.initialize({
           return;
         }
 
+        pendo.track('offer_submitted', {
+          offerTextLength: text.length,
+          offerTextWordCount: text.split(/\s+/).length
+        });
+
         button.disabled = true;
         button.textContent = 'Explaining...';
         showLoading();
@@ -485,8 +500,20 @@ pendo.initialize({
           if (!jsonStr) throw new Error('No structured response was found in the reply.');
           const parsed = JSON.parse(jsonStr);
           showResult(parsed);
+          pendo.track('offer_explanation_generated', {
+            offerTextLength: text.length,
+            escalate: !!parsed.escalate,
+            standardItemsCount: (parsed.standard || []).length,
+            lookCloselyItemsCount: (parsed.look_closely || []).length,
+            beforeSigningItemsCount: (parsed.before_signing || []).length,
+            hasEscalation: !!parsed.escalate
+          });
         } catch (error) {
           showError('We could not process your offer right now. Please check your text and try again.');
+          pendo.track('offer_explanation_failed', {
+            errorMessage: error.message || 'Unknown error',
+            offerTextLength: text.length
+          });
           console.error(error);
         } finally {
           button.disabled = false;
